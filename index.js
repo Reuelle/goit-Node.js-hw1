@@ -1,30 +1,33 @@
-const contacts = require('./src/contacts');
-const argv = require('yargs').argv;
+const contactsAPI = require('./contacts');
+const { Command } = require('commander');
 
-function invokeAction({ action, id, name, email, phone }) {
+const program = new Command();
+program
+  .option('-a, --action <type>', 'choose action')
+  .option('-i, --id <type>', 'user id')
+  .option('-n, --name <type>', 'user name')
+  .option('-e, --email <type>', 'user email')
+  .option('-p, --phone <type>', 'user phone');
+program.parse(process.argv);
+
+const argv = program.opts();
+
+async function invokeAction({ action, id, name, email, phone }) {
   switch (action) {
     case 'list':
-      contacts.listContacts()
-        .then(data => console.table(data))
-        .catch(err => console.error(err));
+      console.log(await contactsAPI.listContacts());
       break;
 
     case 'get':
-      contacts.getContactById(id)
-        .then(contact => console.log(contact))
-        .catch(err => console.error(err));
+      console.log(await contactsAPI.getContactById(id));
       break;
 
     case 'add':
-      contacts.addContact(name, email, phone)
-        .then(newContact => console.log('Contact added:', newContact))
-        .catch(err => console.error(err));
+      console.log(await contactsAPI.addContact(name, email, phone));
       break;
 
     case 'remove':
-      contacts.removeContact(id)
-        .then(() => console.log('Contact removed'))
-        .catch(err => console.error(err));
+      console.log(await contactsAPI.removeContact(id));
       break;
 
     default:
